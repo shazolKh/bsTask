@@ -1,0 +1,55 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - master
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+  build-docker:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          docker.io/shazolkh/weatherapp:${{ github.event.release.tag_name }}
+    - name: Print Something
+      run: echo "Pushed on Dockerhub"
+
+#  deploy:
+#    runs-on: ubuntu-latest
+#    needs: build
+#    steps:
+#    - name: Deploy to production
+#      # Add your deployment steps here
+#      run: |
+#        echo "Deploying to production..."
