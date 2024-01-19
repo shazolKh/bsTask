@@ -1,0 +1,52 @@
+# Backend Deployment definition
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: weatherapp-deployment
+  namespace: weatherapp-ns
+  labels:
+    app: weatherapp
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: weatherapp
+  template:
+    metadata:
+      labels:
+        app: weatherapp
+    spec:
+      containers:
+        - name: weatherapp
+          image: shazolkh/bs-test:v1.0.1
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8000
+          envFrom:
+            - secretRef:
+                name: weatherapp-secret
+          resources:
+            requests:
+              memory: "800Mi"
+              cpu: "500m"
+            limits:
+              memory: "2000Mi"
+              cpu: "1000m"
+      tolerations:
+        - key: "vmsize"
+          operator: "Equal"
+          value: "prodlarge"
+          effect: "NoSchedule"
+        - key: "kubernetes.azure.com/scalesetpriority"
+          operator: "Equal"
+          value: "spot"
+          effect: "NoSchedule"
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                - key: "kubernetes.azure.com/scalesetpriority"
+                  operator: In
+                  values:
+                    - "spot"

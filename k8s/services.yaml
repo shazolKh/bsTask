@@ -1,0 +1,33 @@
+# Backend Service definition
+apiVersion: v1
+kind: Service
+metadata:
+  name: weatherapp-service
+  namespace: weatherapp-ns
+spec:
+  selector:
+    app: weatherapp
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000
+---
+# Ingress Definition
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: weatherapp-ingress
+  namespace: weatherapp-ns
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: some.weatherapp.bs23
+      http:
+        paths:
+          - pathType: Prefix
+            path: "/"
+            backend:
+              service:
+                name: weatherapp-service
+                port:
+                  number: 80
