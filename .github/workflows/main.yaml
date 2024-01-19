@@ -9,7 +9,7 @@ on:
       - created
 
 jobs:
-  build-and-push:
+  build-push-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -36,4 +36,25 @@ jobs:
           push: true
 #          tags: ${{ secrets.DOCKERHUB_USERNAME }}/weatherapp:latest
           tags: ${{ secrets.DOCKERHUB_USERNAME }}/bs-test:${{ github.event.release.tag_name }}
+      
+      - uses: azure/setup-kubectl@v2.0
+      # Set the target AKS cluster. 
+      - uses: Azure/aks-set-context@v1
+        name: Setting target AKS Cluster
+        with:
+          creds: '${{ secrets.AZURE_CREDENTIALS }}'
+          cluster-name: BS23-AKS-Cluster
+          resource-group: BS23-Test-RG
+      
+      - uses: Azure/k8s-deploy@v4
+        name: Updating K8s Clusters....
+        with:
+          action: deploy
+          namespace: "weatherapp-ns"
+          manifests: |
+            ./k8s/secrets.yaml
+            ./k8s/deployment.yaml
+            ./k8s/services.yaml
+          images: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/bs-test:${{ github.event.release.tag_name }}
 
