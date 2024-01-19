@@ -1,9 +1,9 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches:
-      - master
+#  push:
+#    branches:
+#      - master
   release:
     types:
       - created
@@ -34,6 +34,6 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/weatherapp:latest
-#          tags: ${{ secrets.DOCKERHUB_USERNAME }}/weatherapp:${{ github.event.release.tag_name }}
+#          tags: ${{ secrets.DOCKERHUB_USERNAME }}/weatherapp:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/bs-test:${{ github.event.release.tag_name }}
 
