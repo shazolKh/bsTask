@@ -1,24 +1,23 @@
-# Use a minimal base image for the final runtime
-FROM python:3.9-slim AS base
+# Stage 1: Build stage
+FROM python:3.9-slim AS builder
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends gcc libpq-dev
-
-# Create and set the working directory
 WORKDIR /app
 
-# Install dependencies
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 
-# Switch to a new stage for the final image
-FROM base AS final
+# Install dependencies
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code
+# Stage 2: Production stage
+FROM python:3.9-slim AS final
+
+WORKDIR /app
+
+# Copy only the necessary files from the build stage
+COPY --from=builder /usr/local/lib/python3.9/site-packages/ /usr/local/lib/python3.9/site-packages/
+COPY --from=builder /usr/local/bin/uvicorn /usr/local/bin/uvicorn
+
 COPY . .
 
 # Expose the FastAPI application port
