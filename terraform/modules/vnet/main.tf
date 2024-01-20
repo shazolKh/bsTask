@@ -3,8 +3,6 @@ resource "azurerm_virtual_network" "aks_vnet" {
   location            = var.LOCATION
   resource_group_name = var.RG
   address_space       = ["10.224.0.0/12"]
-
-  depends_on = [azurerm_resource_group.aks_rg]
 }
 
 resource "azurerm_subnet" "aks_default_subnet" {
@@ -21,6 +19,4 @@ resource "azurerm_public_ip" "aks_public_ip" {
   location            = var.LOCATION
   resource_group_name = var.RG
   allocation_method   = "Dynamic"
-
-  depends_on = [azurerm_resource_group.aks_rg]
 }

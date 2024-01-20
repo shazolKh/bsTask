@@ -28,6 +28,8 @@ module "vnet" {
   VNET_NAME = "BS23-VNet"
   LOCATION  = var.LOCATION
   RG        = var.RG
+
+  depends_on = [ azurerm_resource_group.aks_rg ]
 }
 
 module "cluster" {
@@ -38,4 +40,6 @@ module "cluster" {
   LOCATION  = var.LOCATION
   NAME      = "BS23-AKS-Cluster"
   PUBLIC_IP = module.vnet.PUBLIC_IP_OUTPUT
+
+  depends_on = [ azurerm_resource_group.aks_rg, module.vnet ]
 }

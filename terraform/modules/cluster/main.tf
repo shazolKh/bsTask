@@ -54,5 +54,5 @@ resource "azurerm_kubernetes_cluster" "aks_cluster" {
     }
   }
 
-  depends_on = [azurerm_user_assigned_identity.aks_identity]
+  depends_on = [azurerm_user_assigned_identity.aks_identity, data.azurerm_subscription.subscription_data]
 }
